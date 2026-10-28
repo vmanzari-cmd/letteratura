@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naturalismo e Verismo - Scopri & Sfida</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #311042 70%, #451a03 100%);
+            background-attachment: fixed;
+            color: #1e293b;
+        }
+        .selectable-sentence {
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .selectable-sentence:hover {
+            background-color: #fef08a;
+        }
+        .selectable-sentence.selected {
+            background-color: #fde047;
+            font-weight: 600;
+            outline: 2px solid #eab308;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-800">
+
+    <!-- Header / Navigation Bar -->
+    <header class="bg-slate-900/90 backdrop-blur-md text-white shadow-lg sticky top-0 z-50 border-b border-slate-700/50">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span class="bg-amber-500 text-slate-950 text-xs font-extrabold px-2.5 py-1 rounded-md uppercase tracking-wider">Italiano 5 TL</span>
+                <h1 class="text-lg md:text-xl font-bold tracking-tight text-amber-400">Naturalismo e Verismo</h1>
+            </div>
+            <nav class="flex space-x-2">
+                <button id="nav-scopri" onclick="switchTab('scopri')" class="px-4 py-2 rounded-lg font-medium text-sm transition-all bg-amber-500 text-slate-950 shadow">
+                    📖 Scopri (Concetti)
+                </button>
+                <button id="nav-sfida" onclick="switchTab('sfida')" class="px-4 py-2 rounded-lg font-medium text-sm transition-all bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+                    ⚡ Sfida (10 Prove)
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-5xl mx-auto px-4 py-8 flex-grow w-full">
+
+        <!-- SECTION: SCOPRI -->
+        <section id="section-scopri" class="space-y-6">
+            <div class="bg-white/95 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-slate-200/80">
+                <h2 class="text-2xl font-bold text-slate-900 mb-2">Schede di Approfondimento</h2>
+                <p class="text-slate-600 text-sm">
+                    Consulta i concetti chiave prima o durante la Sfida. Ogni domanda della Sfida fa riferimento a una di queste schede per aiutarti a individuare le giuste inferenze nei testi.
+                </p>
+            </div>
+
+            <!-- Tab Buttons for Cards -->
+            <div class="flex flex-wrap gap-2 border-b border-white/20 pb-3" id="scopri-tabs">
+                <!-- Tabs generated dynamically -->
+            </div>
+
+            <!-- Card Content Display -->
+            <div id="scopri-card-content" class="bg-white/95 backdrop-blur-sm p-6 md:p-8 rounded-xl shadow-lg border border-slate-200/80 transition-all">
+                <!-- Content injected by JS -->
+            </div>
+        </section>
+
+        <!-- SECTION: SFIDA -->
+        <section id="section-sfida" class="hidden space-y-6">
+
+            <!-- Challenge Header Progress -->
+            <div id="sfida-progress-container" class="bg-white/95 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-slate-200/80 flex justify-between items-center flex-wrap gap-4">
+                <div>
+                    <span class="text-xs uppercase tracking-wider text-slate-500 font-semibold block">Avanzamento Sfida</span>
+                    <span id="sfida-step-indicator" class="text-lg font-bold text-slate-900">Prova 1 di 10</span>
+                </div>
+                <div class="w-full md:w-1/2 bg-slate-100 h-3 rounded-full overflow-hidden">
+                    <div id="sfida-progress-bar" class="bg-amber-500 h-full w-1/10 transition-all duration-300"></div>
+                </div>
+                <div>
+                    <span class="text-xs uppercase tracking-wider text-slate-500 font-semibold block">Tentativi Quesito</span>
+                    <span id="sfida-attempts-left" class="text-sm font-bold text-amber-600">2 rimasti</span>
+                </div>
+            </div>
+
+            <!-- Question Card Container -->
+            <div id="sfida-question-card" class="bg-white/95 backdrop-blur-sm p-6 md:p-8 rounded-xl shadow-lg border border-slate-200/80 min-h-[400px] flex flex-col justify-between space-y-6">
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span id="sfida-diff-badge" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-100 text-emerald-800">
+                            Difficoltà: Facile
+                        </span>
+                        <span id="sfida-card-ref" class="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded">
+                            Riferimento: Scheda S1
+                        </span>
+                    </div>
+
+                    <!-- Passaggio di testo da analizzare -->
+                    <div id="sfida-text-box" class="p-4 bg-slate-50 rounded-lg border-l-4 border-amber-500 italic text-slate-700 text-sm md:text-base leading-relaxed">
+                        <!-- Text passage -->
+                    </div>
+
+                    <!-- Consegna domanda -->
+                    <h3 id="sfida-question-title" class="text-lg font-bold text-slate-900">
+                        <!-- Question Text -->
+                    </h3>
+                </div>
+
+                <!-- Answer Area (Multiple Choice OR Sentence Click) -->
+                <div id="sfida-answer-area" class="space-y-3 my-4">
+                    <!-- Dynamic Answer Options -->
+                </div>
+
+                <!-- Actions / Controls -->
+                <div class="pt-4 border-t border-slate-100 flex justify-between items-center">
+                    <button onclick="switchTab('scopri')" class="text-slate-500 hover:text-slate-800 text-sm font-medium flex items-center space-x-1">
+                        <span>🔍 Consulta Schede "Scopri"</span>
+                    </button>
+                    <button id="btn-submit-answer" onclick="submitAnswer()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-2.5 rounded-lg shadow transition-all">
+                        Conferma Risposta
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results & Review Section (Shown at the end) -->
+            <div id="sfida-results-screen" class="hidden bg-white/95 backdrop-blur-sm p-6 md:p-8 rounded-xl shadow-lg border border-slate-200/80 space-y-6">
+                <div class="text-center py-4 border-b border-slate-200">
+                    <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Sfida Completata! 🎉</h2>
+                    <p class="text-slate-600 text-lg">Ecco il resoconto dettagliato delle tue prestazioni e l'analisi delle inferenze.</p>
+                    <div id="final-score-box" class="mt-4 inline-block bg-slate-900 text-white px-6 py-3 rounded-xl font-bold text-2xl shadow-md">
+                        Punteggio: -- / 10
+                    </div>
+                </div>
+
+                <!-- Summary List -->
+                <div class="space-y-6">
+                    <h3 class="text-xl font-bold text-slate-900">Riepilogo delle Prove</h3>
+                    <div id="results-list" class="space-y-4">
+                        <!-- Results items inserted dynamically -->
+                    </div>
+                </div>
+
+                <div class="text-center pt-6">
+                    <button onclick="restartChallenge()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-8 py-3 rounded-lg shadow-md transition-all">
+                        🔄 Riconfrontati con la Sfida
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900/90 backdrop-blur-md text-slate-400 text-xs py-4 text-center border-t border-slate-800">
+        <div class="max-w-5xl mx-auto px-4">
+            Modulo didattico interattivo per la classe 5 TL - Italiano | Naturalismo e Verismo
+        </div>
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        /* === DATI "SCOPRI" (SCHEDE CONCETTI) === */
+        const scopriData = [
+            {
+                id: "S1",
+                tabTitle: "1. Impersonalità & Positivismo",
+                title: "Positivismo e Canone dell'Impersonalità",
+                concept: "L'applicazione del metodo scientifico alla letteratura verista.",
+                body: `
+                    <p class="mb-3">Nel corso del secondo Ottocento, sotto l'influenza del <strong>Positivismo</strong>, la letteratura affronta lo studio dell'uomo e della società con il medesimo rigore delle scienze naturali.</p>
+                    <p class="mb-3">In Francia, Émile Zola sviluppa il <em>Naturalismo</em>. In Italia, Giovanni Verga e Luigi Capuana fondano il <strong>Verismo</strong>, introducendo il <strong>canone dell'impersonalità</strong>.</p>
+                    <div class="bg-amber-50 border-l-4 border-amber-500 p-3 my-3 text-amber-900 text-sm">
+                        <strong>Principio Chiave:</strong> L'opera d'arte deve sembrare "essersi fatta da sé", senza che la mano, le opinioni o il giudizio dell'autore traspaiano nel testo.
+                    </div>
+                `
+            },
+            {
+                id: "S2",
+                tabTitle: "2. La Regressione",
+                title: "La Tecnica della Regressione",
+                concept: "L'eclissi dell'autore e l'assunzione del punto di vista popolare.",
+                body: `
+                    <p class="mb-3">Per garantire l'impersonalità, l'autore verista "regredisce": rinuncia al proprio linguaggio colto e alla propria visione del mondo borghese per adoperare la voce, la mentalità e le categorie morali del mondo rappresentato.</p>
+                    <p class="mb-3">Il narratore coincide con una <strong>voce corale anonima</strong> appartenente al popolo stesso, che spesso condivide pregiudizi, superstizioni ed egoismi propri di quell'ambiente sociale.</p>
+                    <div class="bg-slate-100 p-3 rounded text-sm text-slate-700 italic">
+                        Esempio: In <em>Rosso Malpelo</em>, la voce narrante afferma che Malpelo è cattivo "perché aveva i capelli rossi", assumendo acriticamente un pregiudizio popolare.
+                    </div>
+                `
+            },
+            {
+                id: "S3",
+                tabTitle: "3. Ideale dell'Ostrica",
+                title: "L'Ideale dell'Ostrica e il Determinismo",
+                concept: "Il vincolo al proprio ambiente e la condanna per chi cerca il riscatto.",
+                body: `
+                    <p class="mb-3">Verga elabora l'<strong>"Ideale dell'ostrica"</strong>: come l'ostrica vive sicura finché resta attaccata allo scoglio, così gli appartenenti alle classi subalterne sono protetti solo finché rimangono legati alle tradizioni e al proprio nucleo familiare.</p>
+                    <p class="mb-3">Chi tenta di staccarsi per cercare la fortuna o la mobilità sociale viene travolto dal progresso (la "fiumana del progresso") e sconfitto dal <strong>determinismo sociale</strong>.</p>
+                `
+            },
+            {
+                id: "S4",
+                tabTitle: "4. Lo Straniamento",
+                title: "La Tecnica dello Straniamento",
+                concept: "Il ribaltamento dei valori morali attraverso lo sguardo corale.",
+                body: `
+                    <p class="mb-3">Lo <strong>straniamento</strong> si verifica quando un fatto normale o moralmente positivo viene presentato dal narratore regredito come strano, incomprensibile o persino sconsigliabile, e viceversa.</p>
+                    <p class="mb-3">Poiché la comunità regredita misura tutto in termini di profitto e utilità, i gesti di disinteressata bontà, di affetto sincero o di altruismo appaiono ai suoi occhi come manifestazioni di pazzia o di debolezza.</p>
+                `
+            },
+            {
+                id: "S5",
+                tabTitle: "5. Zola vs Verga",
+                title: "Confronto: Naturalismo Francese vs Verismo Italiano",
+                concept: "Fiducia nel riscatto sociale (Zola) contro il pessimismo radicale (Verga).",
+                body: `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
+                        <div class="border p-3 rounded bg-blue-50">
+                            <h4 class="font-bold text-blue-900 mb-1"> Émile Zola (Naturalismo)</h4>
+                            <p class="text-xs text-blue-800">Scrive nel contesto dell'industriale e dinamica Parigi. Ha fiducia nella funzione sociale del romanzo: denunciare le ingiustizie serve a stimolare riforme politiche e sociali.</p>
+                        </div>
+                        <div class="border p-3 rounded bg-amber-50">
+                            <h4 class="font-bold text-amber-900 mb-1"> Giovanni Verga (Verismo)</h4>
+                            <p class="text-xs text-amber-800">Scrive affrontando la realtà del Sud post-unitario. Ha una visione tragica e pessimistica: le leggi della sopraffazione sono immutabili e la letteratura non ha alcun potere di cambiare la realtà.</p>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        /* === DATI "SFIDA" (10 PROVE) === */
+        const sfidaData = [
+            {
+                id: 1,
+                diff: "Facile",
+                refId: "S2",
+                text: `"Malpelo si chiamava così perché aveva i capelli rossi; ed aveva i capelli rossi perché era un ragazzo malizioso e cattivo, che prometteva di riescere un fior di birbone."`,
+                question: "Quale inferenza principale si ricava sull'identità e sul punto di vista della voce narrante?",
+                type: "mc",
+                options: [
+                    "Il narratore è Giovanni Verga che esprime un giudizio scientifico ed etico sul ragazzo.",
+                    "Il narratore regredisce al livello culturale del popolo, assumendo acriticamente un pregiudizio popolare.",
+                    "Il narratore è il medico del paese che descrive i tratti somatici del protagonista.",
+                    "Il narratore vuole difendere Malpelo dimostrando che le sue colpe dipendono dai genitori."
+                ],
+                correctIndex: 1,
+                explanation: "La voce narrante non coincide con l'autore borghese e colto, ma regredisce assumendo il pregiudizio superstizioso del popolo, secondo cui il colore dei capelli determina la cattiveria.",
+                hint: "Focalizzati sulla relazione causale 'aveva i capelli rossi perché era cattivo'. È un giudizio scientifico o una credenza popolare?"
+            },
+            {
+                id: 2,
+                diff: "Facile",
+                refId: "S4",
+                textSentences: [
+                    "La madre non aveva mai avuta una carezza da lui, e quindi non gliene carried mai.",
+                    "La sorella si vergognava di lui quando compariva nella straduccola.",
+                    "Il padre soltanto gli voleva bene, perché gli lavorava a fianco nella cava."
+                ],
+                textRaw: "La madre non aveva mai avuta una carezza da lui, e quindi non gliene faceva mai. La sorella si vergognava di lui quando compariva nella straduccola. Il padre soltanto gli voleva bene, perché gli lavorava a fianco nella cava.",
+                question: "Clicca sulla frase precisa del testo che dimostra come l'affetto familiare sia sottomesso a una logica di stretto utilitarismo ed egocentrico scambio.",
+                type: "click_sentence",
+                correctSentenceIndex: 0,
+                explanation: "La frase 'La madre non aveva mai avuta una carezza da lui, e quindi non gliene faceva mai' esprime un rapporto affettivo condizionato dall'utilità e dalla rigida reciprocità dello scambio, privo di gratuità.",
+                hint: "Cerca la frase che evidenzia un affetto condizionato da un rigido principio di 'dare per ricevere'."
+            },
+            {
+                id: 3,
+                diff: "Facile",
+                refId: "S1",
+                text: `"Questo racconto è lo studio sincero e spassionato del come nascono e si sviluppano nelle classi più basse le prime irrequietudini per il benessere..." (G. Verga, Premessa a I Malavoglia)`,
+                question: "Quale significato implicito emerge dall'espressione 'studio sincero e spassionato'?",
+                type: "mc",
+                options: [
+                    "L'autore intende scrivere un'opera di fantasia pura per intrattenere il lettore.",
+                    "L'autore adotta un approccio rigoroso e neutrale, quasi scientifico, tipico della poetica verista.",
+                    "L'autore vuole esprimere tutta la propria commozione e indignazione personale.",
+                    "L'autore desidera proporre soluzioni legislative immediate al governo."
+                ],
+                correctIndex: 1,
+                explanation: "L'uso dei termini 'studio', 'sincero' e 'spassionato' riflette il canone dell'impersonalità e l'influenza positivista: l'osservatore analizza i fatti sociali in modo obiettivo, senza giudizi emotivi.",
+                hint: "Considera l'influenza del Positivismo: come deve comportarsi lo scrittore di fronte alla realtà sociale?"
+            },
+            {
+                id: 4,
+                diff: "Medio",
+                refId: "S3",
+                text: `"Il padre di padron 'Ntoni si chiamava anche lui padron 'Ntoni, ed era stato mastro d'ascia e marinaio... E gli uomini della casa portavano tutti il nome del mestiere e della barca."`,
+                question: "Quale inferenza trae il lettore sul valore della tradizione e sul ruolo dell'individuo?",
+                type: "mc",
+                options: [
+                    "L'individuo ha valore solo in quanto parte di una continuità familiare e lavorativa tradizionale.",
+                    "La famiglia Malavoglia desidera che ogni figlio inventi una nuova professione dinamica.",
+                    "Il nome proprio è fondamentale per affermare l'originalità e la creatività personale.",
+                    "L'ambiente della marina impedisce l'accumulo di qualsiasi bene economico."
+                ],
+                correctIndex: 0,
+                explanation: "La ripetizione dei nomi e la sovrapposizione tra individuo, famiglia e mestiere indicano l'adesione all'Ideale dell'Ostrica: la sicurezza sociale dipende dal rimanere saldamente ancorati alla tradizione.",
+                hint: "Pensa alla figura dell'ostrica legata al suo scoglio: cosa rappresenta la ripetizione dello stesso nome per generazioni?"
+            },
+            {
+                id: 5,
+                diff: "Medio",
+                refId: "S3",
+                textSentences: [
+                    "Egli lavorava invece di fare il birbante.",
+                    "E se gli davano una percosse, se la teneva, giacché diceva: 'Il mulo si picchia perché non può picchiar lui'.",
+                    "Così la cava per lui era un rifugio sicuro."
+                ],
+                textRaw: "Egli lavorava invece di fare il birbante. E se gli davano una percosse, se la teneva, giacché diceva: 'Il mulo si picchia perché non può picchiar lui'. Così la cava per lui era un rifugio sicuro.",
+                question: "Clicca sulla frase in cui Malpelo teorizza che la violenza e la sopraffazione siano una legge naturale ed ineluttabile.",
+                type: "click_sentence",
+                correctSentenceIndex: 1,
+                explanation: "Paragonando se stesso al mulo, Malpelo dimostra di aver interiorizzato la legge del più forte: chi si trova in basso nella gerarchia deve subire le percosse senza potersi ribellare.",
+                hint: "Trova la frase che contiene il paragone tra il ragazzo e l'animale da soma."
+            },
+            {
+                id: 6,
+                diff: "Medio",
+                refId: "S5",
+                text: `"Zola descrive i quartieri operai di Parigi denunciando il degrado affinché la società possa porvi rimedio. Verga descrive la lotta per la vita nelle campagne siciliane registrandola come una legge biologica immutabile."`,
+                question: "In che modo l'ideologia sociale di Verga si differenzia da quella di Zola?",
+                type: "mc",
+                options: [
+                    "Verga crede nella rivoluzione contadina, mentre Zola è conservatore.",
+                    "Zola manifesta una fiducia riformista nel progresso; Verga ha una visione totalmente pessimistica ed esclude riscatti.",
+                    "Verga ritiene che la letteratura debba insegnare la morale cattolica, Zola è ateo.",
+                    "Zola nega l'utilità della scienza, mentre Verga ne applica le formule rigide."
+                ],
+                correctIndex: 1,
+                explanation: "A differenza del Naturalismo francese (Zola) che ha una carica progressista e di denuncia sociale, il Verismo di Verga è dominato da un pessimismo radicale: la sopraffazione è una legge immutabile.",
+                hint: "Rifletti sulla differenza tra denuncia utile a migliorare la società e constatazione che nulla può cambiare."
+            },
+            {
+                id: 7,
+                diff: "Difficile",
+                refId: "S3",
+                text: `"Tutta quella roba l'aveva fatta lui, colle sue mani e colla sua testa, col non dormire la notte, col prendere le febbrate dal mal d'aria... Di roba ne aveva quanta ne ha il re." (G. Verga, La Roba)`,
+                question: "Quale inferenza profonda si ricava sulla vita di Mazzarò e sul valore attribuito alla 'roba'?",
+                type: "mc",
+                options: [
+                    "Mazzarò è un uomo generoso che desidera distribuire le sue ricchezze ai contadini poveri.",
+                    "La ricerca dell'accumulo materiale richiede il totale annullamento della vita privata, della salute e dell'umanità.",
+                    "Mazzarò ha ottenuto le sue proprietà grazie a una fortunata eredità ricevuta dai nobili del paese.",
+                    "La ricchezza economica garantisce a Mazzarò la serena felicità familiare."
+                ],
+                correctIndex: 1,
+                explanation: "L'accumulo della 'roba' diventa una vera ossessione che travolge l'esistenza dell'individuo. Per ottenerla, Mazzarò sacrifica riposo, salute e qualsiasi dimensione affettiva.",
+                hint: "Guarda i sacrifici elencati: 'non dormire', 'prendere le febbrate'. Cosa è stato sacrificato per la roba?"
+            },
+            {
+                id: 8,
+                diff: "Difficile",
+                refId: "S4",
+                text: `"Il padrone diceva pure che Malpelo era un ragazzo collerico e maligno, che meritava tutte le legnate, e che le si prendeva da sé, per non lasciarne perdere nessuna."`,
+                question: "Qual è l'effetto della tecnica dello 'straniamento' in questo passo?",
+                type: "mc",
+                options: [
+                    "Far comprendere al lettore che il padrone ha ragione e Malpelo va punito severeamente.",
+                    "Presentare la violenza fisica contro un minorenne come un fatto ovvio e meritato, svelando la perversione morale della comunità.",
+                    "Rendere la narrazione comica e divertente per il pubblico borghese.",
+                    "Dimostrare che il padrone è in realtà un uomo protettivo nei confronti degli operai."
+                ],
+                correctIndex: 1,
+                explanation: "Lo straniamento ribalta la prospettiva morale: il maltrattamento di un ragazzo sfruttato viene presentato dalla voce regredita come normale e meritato, provocando l'indignazione del lettore.",
+                hint: "Il lettore borghese e morale concorda con il padrone o avverte un profondo contrasto tra la realtà e le parole del padrone?"
+            },
+            {
+                id: 9,
+                diff: "Difficile",
+                refId: "S3",
+                textSentences: [
+                    "Voglio andare a far fortuna, come ha fatto il figlio di comare Zuppidda.",
+                    "Non voglio più fare questa vita da cane.",
+                    "Padron 'Ntoni allora si mise a piangere, spiegandogli i pericoli del mare e della città."
+                ],
+                textRaw: "Voglio andare a far fortuna, come ha fatto il figlio di comare Zuppidda. Non voglio più fare questa vita da cane. Padron 'Ntoni allora si mise a piangere, spiegandogli i pericoli del mare e della città.",
+                question: "Clicca sulla frase del dialogo che esprime in modo diretto la rottura dell'Ideale dell'Ostrica da parte del giovane 'Ntoni.",
+                type: "click_sentence",
+                correctSentenceIndex: 0,
+                explanation: "La frase 'Voglio andare a far fortuna' sancisce il desiderio del giovane 'Ntoni di staccarsi dal proprio scoglio/ambiente d'origine per cercare la mobilità sociale, innescando la rovina sua e della famiglia.",
+                hint: "Trova la dichiarazione in cui si afferma la volontà di allontanarsi per cambiare classe sociale."
+            },
+            {
+                id: 10,
+                diff: "Molto Difficile",
+                refId: "S5",
+                text: `"Quando la mano che governa i personaggi è invisibile, la rappresentazione artistica sembra nascere dalla realtà stessa. Ma questa eclissi dell'autore è anche la diretta conseguenza della convinzione che il mondo non possa essere modificato."`,
+                question: "In quale sintesi critica si riassume il legame tra stile impersonale e filosofia verghiana?",
+                type: "mc",
+                options: [
+                    "L'impersonalità è solo un trucco stilistico privo di legame con le idee politiche o filosofiche di Verga.",
+                    "L'autore non interviene con giudizi morali poiché, in un mondo governato dal determinismo immutabile, ogni predica o commento sarebbe un'illusione inutile.",
+                    "L'impersonalità serve a nascondere la scarsa conoscenza che l'autore aveva della società siciliana.",
+                    "L'assenza dell'autore serve a far credere ai lettori che i fatti narrati siano storicamente inventati."
+                ],
+                correctIndex: 1,
+                explanation: "Se la realtà sociale è dominata da leggi ferree e immutabili (lotta per la vita), il giudizio morale dell'autore è inefficace. L'impersonalità è l'unica forma coerente con questo radicale pessimismo.",
+                hint: "Collega lo strumento formale (impersonalità) alla visione della storia e della società (pessimismo/determinismo)."
+            }
+        ];
+
+        /* === STATO DELL'APPLICAZIONE === */
+        let state = {
+            activeTab: 'scopri', // 'scopri' o 'sfida'
+            scopriCardIndex: 0,
+            sfidaCurrentQuestion: 0,
+            attemptsLeft: 2,
+            selectedClickSentenceIndex: null, // per domande tipo 'click_sentence'
+            selectedMcIndex: null, // per domande tipo 'mc'
+            userAnswers: [], // memorizza i risultati delle domande
+            isCompleted: false
+        };
+
+        /* === INIZIALIZZAZIONE ALL'AVVIO === */
+        window.onload = function() {
+            renderScopriTabs();
+            renderScopriCard(0);
+            initSfida();
+        };
+
+        /* === GESTIONE NAVIGATION TAB === */
+        function switchTab(tabName) {
+            state.activeTab = tabName;
+            const scopriSection = document.getElementById('section-scopri');
+            const sfidaSection = document.getElementById('section-sfida');
+            const navScopri = document.getElementById('nav-scopri');
+            const navSfida = document.getElementById('nav-sfida');
+
+            if (tabName === 'scopri') {
+                scopriSection.classList.remove('hidden');
+                sfidaSection.classList.add('hidden');
+                navScopri.className = "px-4 py-2 rounded-lg font-medium text-sm transition-all bg-amber-500 text-slate-950 shadow";
+                navSfida.className = "px-4 py-2 rounded-lg font-medium text-sm transition-all bg-slate-800 text-slate-300 hover:bg-slate-700";
+            } else {
+                scopriSection.classList.add('hidden');
+                sfidaSection.classList.remove('hidden');
+                navSfida.className = "px-4 py-2 rounded-lg font-medium text-sm transition-all bg-amber-500 text-slate-950 shadow";
+                navScopri.className = "px-4 py-2 rounded-lg font-medium text-sm transition-all bg-slate-800 text-slate-300 hover:bg-slate-700";
+            }
+        }
+
+        /* === RENDERING SEZIONE SCOPRI === */
+        function renderScopriTabs() {
+            const tabsContainer = document.getElementById('scopri-tabs');
+            tabsContainer.innerHTML = '';
+
+            scopriData.forEach((item, index) => {
+                const btn = document.createElement('button');
+                btn.id = `scopri-tab-btn-${index}`;
+                btn.className = `px-3.5 py-2 rounded-lg font-medium text-xs md:text-sm border transition-all ${
+                    index === state.scopriCardIndex 
+                    ? 'bg-slate-900 text-white border-slate-900 shadow' 
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`;
+                btn.innerText = item.tabTitle;
+                btn.onclick = () => renderScopriCard(index);
+                tabsContainer.appendChild(btn);
+            });
+        }
+
+        function renderScopriCard(index) {
+            state.scopriCardIndex = index;
+            renderScopriTabs(); // update active styling
+
+            const card = scopriData[index];
+            const contentContainer = document.getElementById('scopri-card-content');
+            
+            contentContainer.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+                        <div>
+                            <span class="text-xs font-bold text-amber-600 uppercase tracking-wide">Scheda Concetto ${card.id}</span>
+                            <h3 class="text-xl md:text-2xl font-bold text-slate-900">${card.title}</h3>
+                        </div>
+                        <span class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded font-mono">Modulo italiano 5 TL</span>
+                    </div>
+                    <p class="text-sm font-semibold text-slate-700 italic">${card.concept}</p>
+                    <div class="text-slate-700 text-sm md:text-base leading-relaxed space-y-2">
+                        ${card.body}
+                    </div>
+                </div>
+            `;
+        }
+
+        /* === GESTIONE SEZIONE SFIDA === */
+        function initSfida() {
+            state.sfidaCurrentQuestion = 0;
+            state.attemptsLeft = 2;
+            state.userAnswers = new Array(sfidaData.length).fill(null);
+            state.isCompleted = false;
+
+            document.getElementById('sfida-progress-container').classList.remove('hidden');
+            document.getElementById('sfida-question-card').classList.remove('hidden');
+            document.getElementById('sfida-results-screen').classList.add('hidden');
+
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = sfidaData[state.sfidaCurrentQuestion];
+            state.attemptsLeft = 2;
+            state.selectedClickSentenceIndex = null;
+            state.selectedMcIndex = null;
+
+            // Reset UI indicators
+            document.getElementById('sfida-step-indicator').innerText = `Prova ${q.id} di ${sfidaData.length}`;
+            document.getElementById('sfida-progress-bar').style.width = `${(q.id / sfidaData.length) * 100}%`;
+            document.getElementById('sfida-attempts-left').innerText = `${state.attemptsLeft} rimasti`;
+            document.getElementById('sfida-attempts-left').className = "text-sm font-bold text-amber-600";
+            
+            document.getElementById('sfida-diff-badge').innerText = `Difficoltà: ${q.diff}`;
+            document.getElementById('sfida-card-ref').innerText = `Riferimento: Scheda ${q.refId}`;
+            document.getElementById('sfida-question-title').innerText = q.question;
+
+            // Render Text Area based on type
+            const textBox = document.getElementById('sfida-text-box');
+            const answerArea = document.getElementById('sfida-answer-area');
+            answerArea.innerHTML = '';
+
+            if (q.type === 'click_sentence') {
+                // Sentences highlighted on click
+                let sentenceHTML = q.textSentences.map((sentence, idx) => {
+                    return `<span class="selectable-sentence" data-idx="${idx}" onclick="selectSentence(${idx})">${sentence}</span>`;
+                }).join(' ');
+
+                textBox.innerHTML = sentenceHTML;
+                answerArea.innerHTML = `
+                    <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-900">
+                        📌 <strong>Istruzione:</strong> Clicca direttamente sopra una delle frasi evidenziabili nel riquadro grigio in alto per selezionarla, poi premi "Conferma Risposta".
+                    </div>
+                `;
+            } else {
+                // Multiple Choice
+                textBox.innerText = q.text;
+
+                q.options.forEach((opt, idx) => {
+                    const optionBtn = document.createElement('button');
+                    optionBtn.className = `w-full text-left p-3.5 rounded-lg border text-sm font-medium transition-all flex items-start space-x-3 bg-white border-slate-200 hover:border-amber-400 hover:bg-amber-50/50`;
+                    optionBtn.id = `mc-opt-${idx}`;
+                    optionBtn.onclick = () => selectMcOption(idx);
+                    optionBtn.innerHTML = `
+                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center text-xs font-bold text-slate-500 flex-shrink-0 mt-0.5" id="mc-circle-${idx}">
+                            ${String.fromCharCode(65 + idx)}
+                        </span>
+                        <span class="text-slate-800">${opt}</span>
+                    `;
+                    answerArea.appendChild(optionBtn);
+                });
+            }
+
+            // Enable submit button
+            const btnSubmit = document.getElementById('btn-submit-answer');
+            btnSubmit.disabled = false;
+            btnSubmit.innerText = "Conferma Risposta";
+            btnSubmit.className = "bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-2.5 rounded-lg shadow transition-all";
+        }
+
+        /* Selection Helpers */
+        function selectSentence(index) {
+            state.selectedClickSentenceIndex = index;
+            const allSentences = document.querySelectorAll('.selectable-sentence');
+            allSentences.forEach(el => el.classList.remove('selected'));
+            
+            const selectedEl = document.querySelector(`.selectable-sentence[data-idx="${index}"]`);
+            if (selectedEl) {
+                selectedEl.classList.add('selected');
+            }
+        }
+
+        function selectMcOption(index) {
+            state.selectedMcIndex = index;
+            const q = sfidaData[state.sfidaCurrentQuestion];
+            
+            q.options.forEach((_, idx) => {
+                const btn = document.getElementById(`mc-opt-${idx}`);
+                const circle = document.getElementById(`mc-circle-${idx}`);
+                if (idx === index) {
+                    btn.className = "w-full text-left p-3.5 rounded-lg border-2 text-sm font-medium transition-all flex items-start space-x-3 bg-amber-50 border-amber-500 shadow-sm";
+                    circle.className = "w-6 h-6 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5";
+                } else {
+                    btn.className = "w-full text-left p-3.5 rounded-lg border text-sm font-medium transition-all flex items-start space-x-3 bg-white border-slate-200 hover:border-amber-400 hover:bg-amber-50/50";
+                    circle.className = "w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center text-xs font-bold text-slate-500 flex-shrink-0 mt-0.5";
+                }
+            });
+        }
+
+        /* Submit logic */
+        function submitAnswer() {
+            const q = sfidaData[state.sfidaCurrentQuestion];
+            let isCorrect = false;
+            let userSelection = null;
+
+            if (q.type === 'click_sentence') {
+                if (state.selectedClickSentenceIndex === null) {
+                    showMessageBox("Seleziona una frase del testo prima di confermare!");
+                    return;
+                }
+                userSelection = state.selectedClickSentenceIndex;
+                isCorrect = (state.selectedClickSentenceIndex === q.correctSentenceIndex);
+            } else {
+                if (state.selectedMcIndex === null) {
+                    showMessageBox("Seleziona una risposta a scelta multipla prima di confermare!");
+                    return;
+                }
+                userSelection = state.selectedMcIndex;
+                isCorrect = (state.selectedMcIndex === q.correctIndex);
+            }
+
+            if (isCorrect) {
+                // Correct on current attempt
+                state.userAnswers[state.sfidaCurrentQuestion] = {
+                    questionId: q.id,
+                    isCorrect: true,
+                    attemptsUsed: 3 - state.attemptsLeft,
+                    selected: userSelection
+                };
+                nextQuestion();
+            } else {
+                state.attemptsLeft--;
+                if (state.attemptsLeft > 0) {
+                    // Feedback per primo errore (senza rivelare subito l'esito finale)
+                    document.getElementById('sfida-attempts-left').innerText = `${state.attemptsLeft} rimasto!`;
+                    document.getElementById('sfida-attempts-left').className = "text-sm font-bold text-red-600 animate-pulse";
+                    
+                    showMessageBox(`⚠️ <strong>Risposta non corretta.</strong><br><br>💡 <em>Suggerimento:</em> ${q.hint}<br><br>Hai ancora 1 tentativo per questa prova.`);
+                } else {
+                    // Tentativi esauriti
+                    state.userAnswers[state.sfidaCurrentQuestion] = {
+                        questionId: q.id,
+                        isCorrect: false,
+                        attemptsUsed: 2,
+                        selected: userSelection
+                    };
+                    nextQuestion();
+                }
+            }
+        }
+
+        function nextQuestion() {
+            if (state.sfidaCurrentQuestion < sfidaData.length - 1) {
+                state.sfidaCurrentQuestion++;
+                renderQuestion();
+            } else {
+                showResultsScreen();
+            }
+        }
+
+        /* Render Finale con Feedback completo */
+        function showResultsScreen() {
+            state.isCompleted = true;
+            document.getElementById('sfida-progress-container').classList.add('hidden');
+            document.getElementById('sfida-question-card').classList.add('hidden');
+            
+            const resultsScreen = document.getElementById('sfida-results-screen');
+            resultsScreen.classList.remove('hidden');
+
+            // Calcolo Punteggio
+            const correctCount = state.userAnswers.filter(a => a && a.isCorrect).length;
+            document.getElementById('final-score-box').innerText = `Punteggio Finale: ${correctCount} / ${sfidaData.length}`;
+
+            // Render Elenco Risposte e Spiegazioni
+            const listContainer = document.getElementById('results-list');
+            listContainer.innerHTML = '';
+
+            sfidaData.forEach((q, idx) => {
+                const uAns = state.userAnswers[idx];
+                const isCorrect = uAns ? uAns.isCorrect : false;
+                const refCard = scopriData.find(c => c.id === q.refId);
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `p-5 rounded-xl border ${isCorrect ? 'border-emerald-200 bg-emerald-50/40' : 'border-red-200 bg-red-50/40'} space-y-3`;
+
+                let userAnsText = "";
+                let correctAnsText = "";
+
+                if (q.type === 'click_sentence') {
+                    userAnsText = (uAns && uAns.selected !== null) ? `"${q.textSentences[uAns.selected]}"` : "Nessuna selezione";
+                    correctAnsText = `"${q.textSentences[q.correctSentenceIndex]}"`;
+                } else {
+                    userAnsText = (uAns && uAns.selected !== null) ? q.options[uAns.selected] : "Nessuna opzione";
+                    correctAnsText = q.options[q.correctIndex];
+                }
+
+                itemDiv.innerHTML = `
+                    <div class="flex justify-between items-start flex-wrap gap-2">
+                        <span class="font-bold text-sm ${isCorrect ? 'text-emerald-800' : 'text-red-800'}">
+                            Prova ${q.id}: ${isCorrect ? '✅ Corretta' : '❌ Errata'}
+                        </span>
+                        <button onclick="switchTab('scopri'); renderScopriCard(${scopriData.findIndex(c => c.id === q.refId)});" class="text-xs bg-slate-900 text-white px-2.5 py-1 rounded font-medium hover:bg-slate-700">
+                            Ripassa Scheda ${q.refId} (${refCard ? refCard.title : ''})
+                        </button>
+                    </div>
+
+                    <p class="text-sm font-semibold text-slate-900">${q.question}</p>
+
+                    <div class="text-xs space-y-1 bg-white/80 p-3 rounded-lg border border-slate-200">
+                        <div><strong class="text-slate-600">La tua risposta:</strong> <span class="${isCorrect ? 'text-emerald-700 font-medium' : 'text-red-700 font-medium'}">${userAnsText}</span></div>
+                        ${!isCorrect ? `<div><strong class="text-slate-600">Risposta corretta:</strong> <span class="text-slate-900 font-medium">${correctAnsText}</span></div>` : ''}
+                    </div>
+
+                    <!-- Spiegazione dell'errore / approfondimento -->
+                    <div class="text-xs text-slate-700 leading-relaxed bg-amber-50/80 p-3 rounded-lg border border-amber-200">
+                        <strong>📖 Spiegazione e Inferenza:</strong> ${q.explanation}
+                    </div>
+                `;
+
+                listContainer.appendChild(itemDiv);
+            });
+        }
+
+        function restartChallenge() {
+            initSfida();
+        }
+
+        /* Simple Custom Modal System to avoid alert() */
+        function showMessageBox(message) {
+            const existingModal = document.getElementById('custom-modal');
+            if (existingModal) existingModal.remove();
+
+            const modal = document.createElement('div');
+            modal.id = 'custom-modal';
+            modal.className = "fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4";
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6 space-y-4 border border-slate-200">
+                    <div class="text-slate-800 text-sm md:text-base leading-relaxed">
+                        ${message}
+                    </div>
+                    <div class="text-right pt-2">
+                        <button onclick="document.getElementById('custom-modal').remove()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-5 py-2 rounded-lg text-sm shadow">
+                            Ho capito
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+    </script>
+</body>
+</html>
